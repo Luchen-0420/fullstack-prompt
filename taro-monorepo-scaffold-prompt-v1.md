@@ -1,4 +1,5 @@
-```
+# Taro 一码多端 Monorepo 全栈项目脚手架生成提示词（改进版 v2）
+
 你是一名资深全栈架构师。请为我生成一个**完整可运行**的 Monorepo 全栈项目脚手架，严格遵循工程最佳实践。
 
 ## 核心要求
@@ -219,6 +220,25 @@ export default defineAppConfig({
     navigationBarTextStyle: 'black'
   }
 });
+```
+
+##### project.config.json（微信小程序项目配置）
+> ⚠️ **重要**：必须指定 `libVersion` 调试基础库版本为 `3.11.3`，以获得更好的组件兼容性。
+
+```json
+{
+  "miniprogramRoot": "dist/weapp/",
+  "projectname": "my-app",
+  "appid": "your-weapp-appid",
+  "compileType": "miniprogram",
+  "libVersion": "3.11.3",
+  "setting": {
+    "es6": false,
+    "postcss": false,
+    "minified": true,
+    "enhance": true
+  }
+}
 ```
 
 ##### 响应式全局样式（app.scss）
@@ -499,6 +519,97 @@ import { Button } from '@tarojs/components';
 }
 ```
 
+### Cell 组件注意事项
+> ⚠️ **重要**：NutUI 的 Cell 组件在小程序端可能存在渲染问题（内容不显示、样式丢失等），**建议使用自定义 View 组件替代**。
+
+**问题表现**：在微信小程序中，Cell 组件的 `title` 和 `description` 可能不显示，或样式与 H5 端不一致。
+
+**解决方案**：使用 Taro 原生组件（`View`、`Text`）构建自定义菜单项：
+```tsx
+import { View, Text } from '@tarojs/components';
+
+// 菜单项数据
+const menuItems = [
+    { icon: '👤', title: '个人中心', description: '查看和编辑个人信息', onClick: handleProfile },
+    { icon: '⚙️', title: '系统设置', description: '应用偏好设置', onClick: handleSettings },
+    { icon: '❓', title: '帮助中心', description: '常见问题解答', onClick: handleHelp },
+];
+
+// 渲染菜单列表
+<View className="menu-list">
+    {menuItems.map((item, index) => (
+        <View key={index} className="menu-item" onClick={item.onClick} hoverClass="menu-item-hover">
+            <View className="menu-item-icon">{item.icon}</View>
+            <View className="menu-item-content">
+                <Text className="menu-item-title">{item.title}</Text>
+                <Text className="menu-item-desc">{item.description}</Text>
+            </View>
+            <Text className="menu-item-arrow">›</Text>
+        </View>
+    ))}
+</View>
+```
+
+**菜单项样式示例**（SCSS）：
+```scss
+.menu-list {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border-color);
+
+    &:last-child { border-bottom: none; }
+}
+
+.menu-item-hover {
+    background-color: #f5f5f5 !important;
+}
+
+.menu-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(250, 44, 25, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 12px;
+}
+
+.menu-item-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.menu-item-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.menu-item-arrow {
+    font-size: 20px;
+    color: var(--text-light);
+    margin-left: 8px;
+}
+```
+
 ### 安全性
 - 密码使用 bcryptjs hash 存储
 - JWT 密钥使用环境变量
@@ -519,4 +630,3 @@ import { Button } from '@tarojs/components';
 8. **登录页为默认启动页**，无 tabBar
 
 请开始生成，确保输出内容完整、规范、可执行。
-```
