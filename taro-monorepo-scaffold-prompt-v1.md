@@ -1,4 +1,4 @@
-# Taro 一码多端 Monorepo 全栈项目脚手架生成提示词v1
+# Taro 一码多端 Monorepo 全栈项目脚手架生成提示词 v1
 
 你是一名资深全栈架构师。请为我生成一个**完整可运行**的 Monorepo 全栈项目脚手架，严格遵循工程最佳实践。
 
@@ -24,6 +24,48 @@
   ├── package.json        # workspace root
   └── pnpm-workspace.yaml
   ```
+
+#### 根目录 package.json（一键启动命令）
+```json
+{
+  "name": "my-fullstack-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo full-stack application with Taro frontend and Express backend",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter server dev\" \"pnpm --filter taro-app dev:h5\"",
+    "dev:weapp": "concurrently \"pnpm --filter server dev\" \"pnpm --filter taro-app dev:weapp\"",
+    "build:h5": "pnpm --filter taro-app build:h5",
+    "build:weapp": "pnpm --filter taro-app build:weapp",
+    "server": "pnpm --filter server start",
+    "server:dev": "pnpm --filter server dev",
+    "db:init": "psql -d my_app_db -f packages/server/src/db/schema.sql"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
+```
+
+**常用命令说明**：
+| 命令 | 说明 |
+|------|------|
+| `pnpm dev` | 一键启动后端 + H5 网页版 |
+| `pnpm dev:weapp` | 一键启动后端 + 微信小程序编译 |
+| `pnpm build:h5` | 构建 H5 生产版本 |
+| `pnpm build:weapp` | 构建小程序生产版本 |
+| `pnpm db:init` | 初始化数据库表结构 |
+
+#### pnpm-workspace.yaml
+```yaml
+packages:
+  - 'packages/*'
+```
 
 ---
 
