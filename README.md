@@ -180,6 +180,34 @@ AI 会生成完整的项目代码，你只需要：
 
 项目创建好后，需要同时启动**后端**和**前端**。
 
+先进行数据库操作
+
+### 数据库操作
+
+#### step 1 : 登录账户
+
+``` bash
+psql -U postgres
+```
+
+#### step 2 : 建数据库
+
+```bash
+CREATE DATABASE prompt_demo;
+```
+
+#### step 3 :退出
+
+```
+\q
+```
+
+#### step 4 : 导入 schema.sql
+
+```bash
+psql -U postgres -d prompt_demo -f packages/server/src/db/schema.sql
+```
+
 ### ⚡ 一键启动（推荐）
 
 在项目**根目录**运行：
