@@ -1,4 +1,3 @@
-# Taro 一码多端 Monorepo 全栈项目脚手架生成提示词 v1
 
 你是一名资深全栈架构师。请为我生成一个**完整可运行**的 Monorepo 全栈项目脚手架，严格遵循工程最佳实践。
 
@@ -9,6 +8,26 @@
 - 前后端通过 API 通信，H5 端使用代理，小程序直接请求
 - 使用 pnpm workspace 管理 Monorepo
 - **H5 端使用标准 CSS 响应式设计，禁用 pxtransform**
+
+### ⚠️ 严格禁止事项（必须遵守）
+> **以下行为视为不合格输出，必须严格禁止：**
+
+1. **禁止使用任何占位符代码**
+   - ❌ 禁止：`showToast('功能开发中')` 、`// TODO: 实现此功能`、`console.log('暂未实现')`
+   - ❌ 禁止：注释中包含 `simplified`、`placeholder`、`mock`、`待实现`、`开发中` 等字样
+   - ✅ 要求：所有按钮、表单提交等用户交互必须有完整的业务逻辑实现
+
+2. **禁止省略任何代码**
+   - ❌ 禁止：`// ... 其他代码`、`// 省略`、`// 类似实现`
+   - ✅ 要求：每个文件必须是完整的、可直接复制使用的
+
+3. **禁止功能不对称**
+   - ❌ 禁止：后端有注册 API，但前端注册按钮不调用它
+   - ✅ 要求：定义的每个 API 端点必须在前端有对应的完整调用逻辑
+
+4. **禁止样式只考虑单端**
+   - ❌ 禁止：样式只在 H5 正常显示，小程序端错位或不可用
+   - ✅ 要求：每个页面必须在 H5 和微信小程序两端都正常显示
 
 ---
 
@@ -337,6 +356,101 @@ page {
 }
 ```
 
+---
+
+### 4. 小程序端样式适配规范
+
+> ⚠️ **重要**：微信小程序与 H5 浏览器的 CSS 渲染存在差异，必须针对性处理。
+
+#### 常见问题与解决方案
+
+| 问题 | H5 表现 | 小程序表现 | 解决方案 |
+|------|--------|-----------|----------|
+| `100vh` 高度 | 正常 | 可能不包含导航栏高度 | 使用 `min-height: 100%` 或 Taro API 获取屏幕高度 |
+| Flexbox 居中 | 正常 | 可能失效 | 确保父容器有明确高度 |
+| CSS 变量 | 正常 | 需在 `page` 选择器中定义 | 在 `app.scss` 的 `page` 中定义变量 |
+| `gap` 属性 | 正常 | 部分版本不支持 | 使用 `margin` 替代 |
+
+#### 页面容器标准写法
+```scss
+// 小程序兼容的全屏居中布局
+.page-container {
+    min-height: 100%;  // 不要用 100vh
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+// 确保 page 有高度（在 app.scss 中）
+page {
+    height: 100%;
+    width: 100%;
+}
+```
+
+#### 登录页样式示例（多端兼容）
+```scss
+.login-page {
+    min-height: 100%;  // 小程序兼容
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fff5f3 0%, #ffffff 50%, #fff9f8 100%);
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 10px 40px rgba(250, 44, 25, 0.08);
+    box-sizing: border-box;
+}
+
+/* 小程序端输入框需要额外处理 */
+.form-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background: #ffffff;
+}
+```
+
+#### app.scss 必须包含的小程序兼容样式
+```scss
+/* 确保 page 容器有高度（小程序必需） */
+page {
+    height: 100%;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    color: #333333;
+    background: #f5f5f5;
+}
+
+/* 全局 box-sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* View 默认样式 */
+view {
+    box-sizing: border-box;
+}
+```
+
 ##### 多端 API baseURL 处理（src/api/config.ts）
 ```typescript
 const getBaseURL = (): string => {
@@ -662,13 +776,50 @@ const menuItems = [
 
 ## 输出要求总结
 
+### 代码完整性要求
 1. **所有代码必须完整**，不使用 `// ... 其他代码` 省略
 2. **必须可直接运行**，复制粘贴即可使用
 3. **配置文件必须完整**，包含所有必要字段
 4. **明确版本号**，避免依赖冲突
 5. **注释清晰**，关键逻辑处添加注释
-6. **遵循分层架构**，各层职责清晰
-7. **H5 使用响应式设计**，禁用 pxtransform
-8. **登录页为默认启动页**，无 tabBar
 
-请开始生成，确保输出内容完整、规范、可执行。
+### 功能完整性要求
+6. **所有用户可见功能必须完整实现**
+   - 每个按钮点击必须有完整的业务逻辑
+   - 禁止使用 `showToast('功能开发中')` 等占位符
+   - 前端定义的每个 API 调用必须与后端对应
+7. **前后端功能必须对称**
+   - 后端有 `/users/register`，前端必须调用它
+   - 后端有 `/users/login`，前端必须调用它
+   - 所有 CRUD 操作必须前后端完整闭环
+
+### 架构与设计要求
+8. **遵循分层架构**，各层职责清晰
+9. **H5 使用响应式设计**，禁用 pxtransform
+10. **登录页为默认启动页**，无 tabBar
+
+### 多端兼容性要求
+11. **样式必须双端测试验证**
+    - 每个页面在 H5 和小程序端都必须正常显示
+    - 使用 `min-height: 100%` 而非 `100vh`
+    - 确保 `page { height: 100%; }` 在 app.scss 中定义
+12. **避免使用小程序不支持的 CSS 特性**
+    - 用 `margin` 替代 `gap`
+    - 用固定值替代复杂的 CSS 变量嵌套
+
+---
+
+## ⚠️ 最终检查清单（生成后自检）
+
+在生成代码后，请逐项确认：
+
+- [ ] 注册按钮点击后调用了 `userApi.register()` 并处理成功/失败
+- [ ] 登录按钮点击后调用了 `userApi.login()` 并处理成功/失败
+- [ ] 登录/注册成功后正确跳转到首页
+- [ ] 个人中心能正确获取并显示用户信息
+- [ ] 修改密码功能完整可用
+- [ ] 所有页面在小程序端样式正常（无错位、无遮挡）
+- [ ] 没有任何 `// TODO`、`功能开发中`、`暂未实现` 等占位内容
+- [ ] 后端所有 API 端点都被前端调用
+
+请开始生成，确保输出内容完整、规范、可执行。**禁止偷懒，禁止使用占位符。**
