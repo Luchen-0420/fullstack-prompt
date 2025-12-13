@@ -1,4 +1,3 @@
-
 你是一名资深全栈架构师。请为我生成一个**完整可运行**的 Monorepo 全栈项目脚手架，严格遵循工程最佳实践。
 
 ## 核心要求
@@ -77,9 +76,9 @@
 
 ### 根目录
 - [ ] `pnpm-workspace.yaml`
-- [ ] `package.json`
+- [ ] `package.json`（**必须包含 `pnpm dev` 一键启动命令 + `concurrently` 依赖**）
 - [ ] `tsconfig.base.json`
-- [ ] `README.md`（必须包含 JWT 密钥生成说明）
+- [ ] `README.md`（必须包含 JWT 密钥生成说明 + 一键启动命令说明）
 - [ ] `.gitignore`
 
 ### 后端 (packages/server)
@@ -104,7 +103,7 @@
 - [ ] `config/index.ts`
 - [ ] `config/dev.ts`
 - [ ] `config/prod.ts`
-- [ ] `src/app.ts`
+- [ ] `src/app.tsx`（**注意：必须使用 .tsx 扩展名，因为包含 JSX**）
 - [ ] `src/app.config.ts`
 - [ ] `src/app.css`
 - [ ] `src/store/userStore.ts`
@@ -128,6 +127,10 @@
   ```
 
 #### 根目录 package.json（一键启动命令）
+
+> [!IMPORTANT]
+> **必须包含一键启动命令**：根目录 `package.json` 必须包含 `pnpm dev` 命令，使用 `concurrently` 同时启动前后端。这是用户体验的关键，禁止遗漏！
+
 ```json
 {
   "name": "my-fullstack-app",
@@ -157,7 +160,7 @@
 **常用命令说明**：
 | 命令 | 说明 |
 |------|------|
-| `pnpm dev` | 一键启动后端 + H5 网页版 |
+| `pnpm dev` | **一键启动后端 + H5 网页版（推荐）** |
 | `pnpm dev:weapp` | 一键启动后端 + 微信小程序编译 |
 | `pnpm build:h5` | 构建 H5 生产版本 |
 | `pnpm build:weapp` | 构建小程序生产版本 |
@@ -344,7 +347,7 @@ export const corsMiddleware = cors(corsOptions);
 
 **应用代码**：
 - `src/app.config.ts` - 应用配置（页面路由，**登录页为默认启动页，无 tabBar**）
-- `src/app.tsx` - 应用入口
+- `src/app.tsx` - 应用入口（**必须使用 .tsx 扩展名**）
 - `src/app.scss` - 全局样式（**响应式设计，使用 CSS 变量和媒体查询**）
 - `src/index.html` - H5 入口模板（**无移动端缩放脚本**）
 
@@ -481,7 +484,8 @@ h5: {
   <meta name="description" content="Taro Cross-Platform Application">
   <title>My App</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
+    /* Note: * selector is fine in H5 index.html, but avoid in WXSS/SCSS files */
+    html, body, div, p, span, input, button { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; font-size: 16px; }
     #app { width: 100%; min-height: 100vh; }
   </style>
@@ -593,6 +597,8 @@ page {
 
 | 问题 | H5 表现 | 小程序表现 | 解决方案 |
 |------|--------|-----------|----------|
+| `*` 通配符选择器 | 正常 | **编译报错** | 使用 `view, text, image, button, input` 枚举替代 |
+| `::before`, `::after` | 正常 | **不支持** | 使用实际元素或图片替代 |
 | `100vh` 高度 | 正常 | 可能不包含导航栏高度 | 使用 `min-height: 100%` 或 Taro API 获取屏幕高度 |
 | Flexbox 居中 | 正常 | 可能失效 | 确保父容器有明确高度 |
 | CSS 变量 | 正常 | 需在 `page` 选择器中定义 | 在 `app.scss` 的 `page` 中定义变量 |
@@ -667,13 +673,8 @@ page {
     background: #f5f5f5;
 }
 
-/* 全局 box-sizing */
-*, *::before, *::after {
-    box-sizing: border-box;
-}
-
-/* View 默认样式 */
-view {
+/* 小程序兼容的 box-sizing（禁止使用 * 通配符，会报编译错误） */
+view, text, image, button, input, navigator {
     box-sizing: border-box;
 }
 ```
@@ -704,6 +705,35 @@ export const API_BASE_URL = getBaseURL();
 - 统一使用 async/await
 - 错误处理必须完整（try-catch + 统一错误中间件）
 - 前端组件使用函数式组件 + Hooks
+
+### [CRITICAL] TypeScript 文件扩展名规范
+> **这是强制规范，违反将导致编译错误！**
+
+| 文件内容 | 必须使用的扩展名 | 禁止使用 |
+|----------|-----------------|----------|
+| 包含 JSX 语法（如 `<View>`, `<Text>`, `<>`, `<Component />`） | **`.tsx`** | `.ts` |
+| 纯 TypeScript（无 JSX） | **`.ts`** | `.tsx`（可用但不推荐） |
+
+**常见错误示例**：
+```typescript
+// ❌ 错误：app.ts 文件中使用了 JSX
+// 文件名: app.ts
+function App({ children }) {
+  return <>{children}</>; // 报错: Type parameter list cannot be empty
+}
+
+// ✅ 正确：使用 app.tsx 扩展名
+// 文件名: app.tsx
+function App({ children }) {
+  return <>{children}</>; // 正常编译
+}
+```
+
+**AI 自检清单**：
+- [ ] 所有包含 `<` 和 `>` 作为 JSX 标签的文件使用 `.tsx` 扩展名
+- [ ] `app.tsx`（入口文件）使用 `.tsx` 而非 `.ts`
+- [ ] 页面组件文件使用 `.tsx`（如 `pages/login/index.tsx`）
+- [ ] 纯工具函数文件使用 `.ts`（如 `utils/storage.ts`）
 
 ### TSX 泛型语法
 - 在 `.tsx` 文件中，单个泛型参数的箭头函数需要添加尾随逗号：
@@ -894,9 +924,12 @@ const menuItems = [
     - 每个页面在 H5 和小程序端都必须正常显示
     - 使用 `min-height: 100%` 而非 `100vh`
     - 确保 `page { height: 100%; }` 在 app.scss 中定义
-12. **避免使用小程序不支持的 CSS 特性**
+12. **避免使用小程序不支持的 CSS/WXSS 特性**
+    - **禁止 `*` 通配符选择器**，会导致 WXSS 编译报错 `unexpected token *`
+    - **禁止 `::before`, `::after` 伪元素**，小程序不支持
     - 用 `margin` 替代 `gap`
     - 用固定值替代复杂的 CSS 变量嵌套
+    - 用 `view, text, image, button, input` 枚举替代 `*` 选择器
 
 ---
 
