@@ -9,27 +9,110 @@
 - 使用 pnpm workspace 管理 Monorepo
 - **H5 端使用标准 CSS 响应式设计，禁用 pxtransform**
 
-### ⚠️ 严格禁止事项（必须遵守）
+---
+
+## [CRITICAL] 强制技术规范（禁止更改）
+
+> **以下技术选型为强制要求，AI 不得擅自替换或更改。如有疑问必须先询问用户。**
+
+| 组件 | 强制使用 | 禁止替换为 |
+|------|----------|------------|
+| 数据库 | **PostgreSQL 14+** | SQLite, MySQL, MongoDB |
+| 数据库驱动 | **pg (node-postgres)** | better-sqlite3, mysql2, prisma |
+| 前端框架 | **Taro 3.6.32 + React 18** | uni-app, React Native |
+| 状态管理 | **Zustand 4.x** | Redux, MobX, Recoil |
+| 后端框架 | **Express 4.x + TypeScript** | Koa, Fastify, NestJS |
+| 运行工具 | **tsx** | ts-node, nodemon with tsc |
+
+### AI 必读检查点
+
+在开始任何代码生成之前，你**必须**完整阅读本文档并确认以下关键项：
+
+1. [ ] 数据库类型已确认（PostgreSQL，非 SQLite）
+2. [ ] 前端框架版本已确认（Taro 3.6.32）
+3. [ ] 后端分层架构已理解（Routes → Controllers → Services → Models）
+4. [ ] H5 样式策略已理解（禁用 pxtransform，使用原生 CSS）
+5. [ ] JWT 密钥安全已理解（README 必须包含密钥生成命令和安全警告）
+
+**如果本文档被截断或无法完整阅读，必须先向用户索取完整版本，禁止自行假设。**
+
+---
+
+### [WARNING] 严格禁止事项（必须遵守）
 > **以下行为视为不合格输出，必须严格禁止：**
 
 1. **禁止使用任何占位符代码**
-   - ❌ 禁止：`showToast('功能开发中')` 、`// TODO: 实现此功能`、`console.log('暂未实现')`
-   - ❌ 禁止：注释中包含 `simplified`、`placeholder`、`mock`、`待实现`、`开发中` 等字样
-   - ✅ 要求：所有按钮、表单提交等用户交互必须有完整的业务逻辑实现
+   - [X] 禁止：`showToast('功能开发中')` 、`// TODO: 实现此功能`、`console.log('暂未实现')`
+   - [X] 禁止：注释中包含 `simplified`、`placeholder`、`mock`、`待实现`、`开发中` 等字样
+   - [OK] 要求：所有按钮、表单提交等用户交互必须有完整的业务逻辑实现
 
 2. **禁止省略任何代码**
-   - ❌ 禁止：`// ... 其他代码`、`// 省略`、`// 类似实现`
-   - ✅ 要求：每个文件必须是完整的、可直接复制使用的
+   - [X] 禁止：`// ... 其他代码`、`// 省略`、`// 类似实现`
+   - [OK] 要求：每个文件必须是完整的、可直接复制使用的
 
 3. **禁止功能不对称**
-   - ❌ 禁止：后端有注册 API，但前端注册按钮不调用它
-   - ✅ 要求：定义的每个 API 端点必须在前端有对应的完整调用逻辑
+   - [X] 禁止：后端有注册 API，但前端注册按钮不调用它
+   - [OK] 要求：定义的每个 API 端点必须在前端有对应的完整调用逻辑
 
 4. **禁止样式只考虑单端**
-   - ❌ 禁止：样式只在 H5 正常显示，小程序端错位或不可用
-   - ✅ 要求：每个页面必须在 H5 和微信小程序两端都正常显示
+   - [X] 禁止：样式只在 H5 正常显示，小程序端错位或不可用
+   - [OK] 要求：每个页面必须在 H5 和微信小程序两端都正常显示
+
+5. **禁止擅自更改技术选型**
+   - [X] 禁止：用户指定 PostgreSQL，AI 自行改为 SQLite 或其他数据库
+   - [X] 禁止：用户指定 Zustand，AI 自行改为 Redux 或其他状态管理
+   - [X] 禁止：在文档被截断时自行假设技术栈
+   - [OK] 要求：如有任何不确定，必须先询问用户确认
+
+6. **禁止遗漏任何必需文件**
+   - [X] 禁止：只生成代码文件，遗漏配置文件（如 `.env.example`、`tsconfig.json`）
+   - [X] 禁止：只生成后端或前端，遗漏另一端
+   - [OK] 要求：完成后必须对照下方"必须生成的文件清单"逐项确认
 
 ---
+
+## [CRITICAL] 必须生成的文件清单（完成时逐项确认）
+
+> **AI 在完成代码生成后，必须逐项确认以下所有文件均已生成。如有遗漏，必须补充。**
+
+### 根目录
+- [ ] `pnpm-workspace.yaml`
+- [ ] `package.json`
+- [ ] `tsconfig.base.json`
+- [ ] `README.md`（必须包含 JWT 密钥生成说明）
+- [ ] `.gitignore`
+
+### 后端 (packages/server)
+- [ ] `package.json`
+- [ ] `tsconfig.json`
+- [ ] `.env.example`（包含数据库、JWT、CORS 配置）
+- [ ] `src/index.ts`
+- [ ] `src/config/database.ts`
+- [ ] `src/models/user.model.ts`
+- [ ] `src/services/user.service.ts`
+- [ ] `src/controllers/user.controller.ts`
+- [ ] `src/routes/index.ts`
+- [ ] `src/routes/user.routes.ts`
+- [ ] `src/middlewares/auth.middleware.ts`
+- [ ] `src/utils/response.ts`
+
+### 前端 (packages/client)
+- [ ] `package.json`
+- [ ] `tsconfig.json`
+- [ ] `project.config.json`
+- [ ] `babel.config.json`
+- [ ] `config/index.ts`
+- [ ] `config/dev.ts`
+- [ ] `config/prod.ts`
+- [ ] `src/app.ts`
+- [ ] `src/app.config.ts`
+- [ ] `src/app.css`
+- [ ] `src/store/userStore.ts`
+- [ ] `src/api/request.ts`
+- [ ] `src/api/user.ts`
+- [ ] `src/pages/index/index.tsx` + `index.config.ts` + `index.css`
+- [ ] `src/pages/login/index.tsx` + `index.config.ts` + `index.css`
+- [ ] `src/pages/register/index.tsx` + `index.config.ts` + `index.css`
 
 ## 技术栈规范
 
@@ -88,7 +171,151 @@ packages:
 
 ---
 
-### 2. 前端技术栈 (packages/taro-app)
+### 2. 后端技术栈 (packages/server)
+
+#### 核心技术
+| 技术 | 版本/说明 |
+|------|----------|
+| **运行时** | Node.js 18+ + TypeScript 5.x |
+| **框架** | Express 4.x |
+| **执行工具** | tsx（无需编译直接运行 TS） |
+| **数据库** | PostgreSQL 14+ |
+| **数据库驱动** | pg (node-postgres) |
+| **环境变量** | dotenv |
+| **日志** | pino + pino-pretty |
+| **验证** | zod |
+| **密码加密** | bcryptjs |
+| **JWT** | jsonwebtoken |
+
+#### 分层架构目录结构
+
+```
+packages/server/
+├── src/
+│   ├── index.ts              # 入口文件
+│   ├── app.ts                # Express 应用配置
+│   ├── routes/
+│   │   ├── index.ts
+│   │   └── user.routes.ts
+│   ├── controllers/
+│   │   └── user.controller.ts
+│   ├── services/
+│   │   └── user.service.ts
+│   ├── models/
+│   │   └── user.model.ts
+│   ├── db/
+│   │   ├── client.ts
+│   │   └── schema.sql
+│   ├── middleware/
+│   │   ├── error.ts
+│   │   ├── cors.ts
+│   │   ├── auth.ts
+│   │   └── validate.ts
+│   └── utils/
+│       ├── logger.ts
+│       ├── response.ts
+│       └── jwt.ts
+├── package.json
+├── tsconfig.json
+├── .env.example
+└── nodemon.json
+```
+
+#### 业务模块
+
+**user**（用户管理）：
+- POST `/api/users/register` - 用户注册
+- POST `/api/users/login` - 用户登录
+- GET `/api/users/profile` - 获取当前用户信息（需认证）
+- PUT `/api/users/profile` - 更新用户信息（需认证）
+- PUT `/api/users/password` - 修改密码（需认证）
+
+#### 配置文件
+
+**.env.example**：
+```env
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=my_app_db
+DB_USER=postgres
+DB_PASSWORD=password
+
+# JWT
+JWT_SECRET=your-super-secret-key-change-in-production
+JWT_EXPIRES_IN=7d
+
+# CORS
+CORS_ORIGIN=http://localhost:10086
+```
+
+> [!CAUTION]
+> **JWT 密钥安全要求**：
+> - 生产环境**必须**使用随机生成的强密钥，禁止使用默认值
+> - 密钥生成命令：`node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+> - 或使用：`openssl rand -hex 64`
+> - 密钥长度建议 64 字节以上
+> - README 文档中必须包含此安全说明
+
+##### 数据库连接池（使用分离变量）
+```typescript
+export const pool = new Pool({
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  database: process.env.DB_NAME || 'my_app_db',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'password',
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+```
+
+##### CORS 中间件（开发环境允许所有来源）
+> [WARNING] **重要**：小程序端请求的 origin 与 H5 不同，开发环境需允许所有来源，否则会报 "Not allowed by CORS" 错误。
+
+```typescript
+// src/middleware/cors.ts
+import cors from 'cors';
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // 开发环境允许所有来源（方便小程序和 H5 调试）
+    if (isDevelopment) {
+      callback(null, true);
+      return;
+    }
+    
+    // 生产环境：允许无 origin 的请求（小程序、curl）
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+    
+    const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(o => o.trim());
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+export const corsMiddleware = cors(corsOptions);
+```
+
+---
+
+### 3. 前端技术栈 (packages/taro-app)
 
 #### 核心技术
 | 技术 | 版本/说明 |
@@ -197,7 +424,7 @@ export default {
 ```
 
 ##### 编译器配置（config/index.ts - 禁用 prebundle）
-> ⚠️ **重要**：Taro 3.6+ 必须在 `compiler` 对象中禁用 prebundle，否则小程序端会报 `module 'prebundle/xxx.wxss.js' is not defined` 错误。
+> [WARNING] **重要**：Taro 3.6+ 必须在 `compiler` 对象中禁用 prebundle，否则小程序端会报 `module 'prebundle/xxx.wxss.js' is not defined` 错误。
 
 ```typescript
 compiler: {
@@ -284,7 +511,7 @@ export default defineAppConfig({
 ```
 
 ##### project.config.json（微信小程序项目配置）
-> ⚠️ **重要**：必须指定 `libVersion` 调试基础库版本为 `3.11.3`，以获得更好的组件兼容性。
+> [WARNING] **重要**：必须指定 `libVersion` 调试基础库版本为 `3.11.3`，以获得更好的组件兼容性。
 
 ```json
 {
@@ -360,7 +587,7 @@ page {
 
 ### 4. 小程序端样式适配规范
 
-> ⚠️ **重要**：微信小程序与 H5 浏览器的 CSS 渲染存在差异，必须针对性处理。
+> [WARNING] **重要**：微信小程序与 H5 浏览器的 CSS 渲染存在差异，必须针对性处理。
 
 #### 常见问题与解决方案
 
@@ -470,142 +697,6 @@ export const API_BASE_URL = getBaseURL();
 
 ---
 
-### 3. 后端技术栈 (packages/server)
-
-#### 核心技术
-| 技术 | 版本/说明 |
-|------|----------|
-| **运行时** | Node.js 18+ + TypeScript 5.x |
-| **框架** | Express 4.x |
-| **执行工具** | tsx（无需编译直接运行 TS） |
-| **数据库** | PostgreSQL 14+ |
-| **数据库驱动** | pg (node-postgres) |
-| **环境变量** | dotenv |
-| **日志** | pino + pino-pretty |
-| **验证** | zod |
-| **密码加密** | bcryptjs |
-| **JWT** | jsonwebtoken |
-
-#### 分层架构目录结构
-
-```
-packages/server/
-├── src/
-│   ├── index.ts              # 入口文件
-│   ├── app.ts                # Express 应用配置
-│   ├── routes/
-│   │   ├── index.ts
-│   │   └── user.routes.ts
-│   ├── controllers/
-│   │   └── user.controller.ts
-│   ├── services/
-│   │   └── user.service.ts
-│   ├── models/
-│   │   └── user.model.ts
-│   ├── db/
-│   │   ├── client.ts
-│   │   └── schema.sql
-│   ├── middleware/
-│   │   ├── error.ts
-│   │   ├── cors.ts
-│   │   ├── auth.ts
-│   │   └── validate.ts
-│   └── utils/
-│       ├── logger.ts
-│       ├── response.ts
-│       └── jwt.ts
-├── package.json
-├── tsconfig.json
-├── .env.example
-└── nodemon.json
-```
-
-#### 业务模块
-
-**user**（用户管理）：
-- POST `/api/users/register` - 用户注册
-- POST `/api/users/login` - 用户登录
-- GET `/api/users/profile` - 获取当前用户信息（需认证）
-- PUT `/api/users/profile` - 更新用户信息（需认证）
-- PUT `/api/users/password` - 修改密码（需认证）
-
-#### 配置文件
-
-**.env.example**：
-```env
-# Server
-PORT=3000
-NODE_ENV=development
-
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=my_app_db
-DB_USER=postgres
-DB_PASSWORD=password
-
-# JWT
-JWT_SECRET=your-super-secret-key-change-in-production
-JWT_EXPIRES_IN=7d
-
-# CORS
-CORS_ORIGIN=http://localhost:10086
-```
-
-##### 数据库连接池（使用分离变量）
-```typescript
-export const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  database: process.env.DB_NAME || 'my_app_db',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'password',
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
-```
-
-##### CORS 中间件（开发环境允许所有来源）
-> ⚠️ **重要**：小程序端请求的 origin 与 H5 不同，开发环境需允许所有来源，否则会报 "Not allowed by CORS" 错误。
-
-```typescript
-// src/middleware/cors.ts
-import cors from 'cors';
-
-const isDevelopment = process.env.NODE_ENV !== 'production';
-
-const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    // 开发环境允许所有来源（方便小程序和 H5 调试）
-    if (isDevelopment) {
-      callback(null, true);
-      return;
-    }
-    
-    // 生产环境：允许无 origin 的请求（小程序、curl）
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-    
-    const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(o => o.trim());
-    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
-
-export const corsMiddleware = cors(corsOptions);
-```
-
----
-
 ## 关键约束和最佳实践
 
 ### 代码规范
@@ -617,10 +708,10 @@ export const corsMiddleware = cors(corsOptions);
 ### TSX 泛型语法
 - 在 `.tsx` 文件中，单个泛型参数的箭头函数需要添加尾随逗号：
   ```typescript
-  // ❌ 错误
+  // [X] 错误
   const fn = <T>(arg: T) => arg;
   
-  // ✅ 正确
+  // [OK] 正确
   const fn = <T,>(arg: T) => arg;
   ```
 
@@ -641,7 +732,7 @@ export const corsMiddleware = cors(corsOptions);
 - 小程序端使用 rpx，H5 端使用 px + 媒体查询
 
 ### 路由跳转注意事项
-> ⚠️ **重要**：由于本脚手架配置无 tabBar，**禁止使用 `Taro.switchTab`**，否则小程序端会报错 `switchTab:fail can not switch to no-tabBar page`。
+> [WARNING] **重要**：由于本脚手架配置无 tabBar，**禁止使用 `Taro.switchTab`**，否则小程序端会报错 `switchTab:fail can not switch to no-tabBar page`。
 
 **路由 API 使用规范**：
 | 场景 | 使用的 API |
@@ -651,7 +742,7 @@ export const corsMiddleware = cors(corsOptions);
 | 返回上一页 | `Taro.navigateBack()` |
 
 ### Button 组件注意事项
-> ⚠️ **重要**：NutUI 的 Button 组件在小程序端存在兼容性问题（`block` 属性无效、文字不显示等），**必须使用 Taro 原生 Button 组件**。
+> [WARNING] **重要**：NutUI 的 Button 组件在小程序端存在兼容性问题（`block` 属性无效、文字不显示等），**必须使用 Taro 原生 Button 组件**。
 
 **解决方案**：使用 Taro 原生 Button 组件（`@tarojs/components`），样式手动定义：
 ```tsx
@@ -676,7 +767,7 @@ import { Button } from '@tarojs/components';
 ```
 
 ### Cell 组件注意事项
-> ⚠️ **重要**：NutUI 的 Cell 组件在小程序端可能存在渲染问题（内容不显示、样式丢失等），**建议使用自定义 View 组件替代**。
+> [WARNING] **重要**：NutUI 的 Cell 组件在小程序端可能存在渲染问题（内容不显示、样式丢失等），**建议使用自定义 View 组件替代**。
 
 **问题表现**：在微信小程序中，Cell 组件的 `title` 和 `description` 可能不显示，或样式与 H5 端不一致。
 
@@ -686,9 +777,9 @@ import { View, Text } from '@tarojs/components';
 
 // 菜单项数据
 const menuItems = [
-    { icon: '👤', title: '个人中心', description: '查看和编辑个人信息', onClick: handleProfile },
-    { icon: '⚙️', title: '系统设置', description: '应用偏好设置', onClick: handleSettings },
-    { icon: '❓', title: '帮助中心', description: '常见问题解答', onClick: handleHelp },
+    { icon: '用户', title: '个人中心', description: '查看和编辑个人信息', onClick: handleProfile },
+    { icon: '设置', title: '系统设置', description: '应用偏好设置', onClick: handleSettings },
+    { icon: '帮助', title: '帮助中心', description: '常见问题解答', onClick: handleHelp },
 ];
 
 // 渲染菜单列表
@@ -809,7 +900,7 @@ const menuItems = [
 
 ---
 
-## ⚠️ 最终检查清单（生成后自检）
+## [WARNING] 最终检查清单（生成后自检）
 
 在生成代码后，请逐项确认：
 
